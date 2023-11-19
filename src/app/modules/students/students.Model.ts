@@ -1,92 +1,194 @@
 import { Schema, model } from 'mongoose';
+import validator from 'validator';
 import {
-  Guardian,
-  LocalGuardian,
-  Students,
-  UserName,
+  StudnetModel,
+  TGuardian,
+  TLocalGuardian,
+  TStudents,
+  TUserName,
 } from './students.interface';
 
-const userNameSchema = new Schema<UserName>({
+const userNameSchema = new Schema<TUserName>({
   firstName: {
     type: String,
-    required: true,
+    required: [true, 'Name is Required'],
+    trim: true,
+    maxlength: [20, 'First Name cna not be more than 20 characters'],
+    validate: {
+      validator: function (value: string) {
+        const firstNameStr = value.charAt(0).toUpperCase() + value.slice(1);
+        return firstNameStr === value;
+      },
+      message: '{VALUE} is not in capitalize format',
+    },
   },
   middleName: {
+    trim: true,
     type: String,
+    validate: {
+      validator: (value: string) => validator.isAlpha(value),
+      message: '{VALUE} is not vaild',
+    },
   },
 
-  lastName: { type: String, required: true },
+  lastName: {
+    type: String,
+    trim: true,
+    required: [true, 'Last Name is Required'],
+  },
 });
 
-const guardianSchema = new Schema<Guardian>({
+const guardianSchema = new Schema<TGuardian>({
   fatherName: {
     type: String,
-    required: true,
+    trim: true,
+    required: [true, 'Father Name is Required'],
   },
+
   fatherOccupation: {
     type: String,
-    required: true,
+    trim: true,
+    required: [true, 'Father Occupation is Required'],
   },
   fatherContactNo: {
     type: String,
-    required: true,
+    trim: true,
+    required: [true, 'Father ContactNo is Required'],
   },
   motherName: {
     type: String,
-    required: true,
+    trim: true,
+    required: [true, 'Mother Name is Required'],
   },
   motherOccupation: {
     type: String,
-    required: true,
+    trim: true,
+    required: [true, 'Mother Occupation is Required'],
   },
   motherContactNo: {
     type: String,
-    required: true,
+    trim: true,
+    required: [true, 'Mother ContactNo is Required'],
   },
 });
 
-const localGuardianSchema = new Schema<LocalGuardian>({
+const localGuardianSchema = new Schema<TLocalGuardian>({
   name: {
+    trim: true,
     type: String,
-    required: true,
+    required: [true, ' Name is Required'],
   },
   occupation: {
     type: String,
-    required: true,
+    trim: true,
+    required: [true, 'Occupationis Required'],
   },
   contactNo: {
     type: String,
-    required: true,
+    trim: true,
+    required: [true, 'ContactNo  is Required'],
   },
   address: {
     type: String,
-    required: true,
+    trim: true,
+    required: [true, 'Address  is Required'],
   },
 });
-const studentsSchema = new Schema<Students>({
-  id: { type: String },
-  name: userNameSchema,
+const studentsSchema = new Schema<TStudents, StudnetModel>({
+  id: { type: String, required: true, unique: true },
+  name: {
+    type: userNameSchema,
+    required: true,
+  },
 
-  gender: ['male', 'female'],
+  gender: {
+    type: String,
+    trim: true,
+    enum: {
+      values: ['male', 'female', 'other'],
+      message: '{VALUE} is not valid',
+    },
+    required: true,
+  },
   dateOfBirth: {
+    trim: true,
     type: String,
   },
   email: {
     type: String,
+    trim: true,
+    required: true,
+    unique: true,
+    validate: {
+      validator: (value: string) => validator.isEmail(value),
+      message: '{VALUE} is not a valid email type',
+    },
+  },
+
+  contactNo: {
+    type: String,
+    trim: true,
+    required: [true, 'ContactNo is Required'],
+  },
+  emergencyContactNo: {
+    type: String,
+    trim: true,
+    required: [true, 'emergencyContactNo is Required'],
+  },
+
+  bloodGroup: {
+    type: String,
+    trim: true,
+    enum: {
+      values: ['A+', 'A-', 'AB+', 'AB-', 'B+', 'B-', 'O+', 'O-'],
+      message:
+        "The blood Group field is can only be one of the following: 'A+', 'A-', 'AB+', 'AB-', 'B+', 'B-', 'O+', 'O-'.",
+    },
+    required: true,
+  },
+  presentAddress: {
+    type: String,
+    trim: true,
+    required: [true, 'present Address is Required'],
+  },
+  permanetAddress: {
+    type: String,
+    trim: true,
+    required: [true, 'permanet Address is Required'],
+  },
+  guardian: {
+    type: guardianSchema,
     required: true,
   },
 
-  contactNo: { type: String, required: true },
-  emergencyContactNo: { type: String, required: true },
-
-  bloodGroup: ['A+', 'A-', 'AB+', 'AB-', 'B+', 'B-', 'O+', 'O-'],
-  presentAddress: { type: String, required: true },
-  permanetAddress: { type: String, required: true },
-  guardian: guardianSchema,
-
-  localGuardian: localGuardianSchema,
-  profileImage: { type: String },
-  isActive: ['active', 'inActive'],
+  localGuardian: {
+    type: localGuardianSchema,
+    required: true,
+  },
+  profileImage: { type: String, trim: true },
+  isActive: {
+    type: String,
+    trim: true,
+    enum: ['active', 'inActive'],
+    default: 'active',
+  },
 });
 
-export const StudentsModel = model<Students>('Students', studentsSchema);
+
+// creating  a custom static method 
+studentsSchema.statics.isUserExists = async function(id: string){
+  const existingUser = await Students.findOne({id});
+  return existingUser
+}
+
+// creating a custom instance methoad 
+
+// studentsSchema.methods.isUserExists = async function (id: string) {
+//   const existingUser = await Students.findOne({ id });
+//   return existingUser;
+// };
+
+export const Students = model<TStudents, StudnetModel>(
+  'Students',
+  studentsSchema,
+);

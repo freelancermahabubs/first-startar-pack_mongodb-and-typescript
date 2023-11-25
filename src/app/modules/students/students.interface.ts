@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 export type TUserName = {
   firstName: string;
@@ -22,8 +22,9 @@ export type TLocalGuardian = {
 };
 export type TStudents = {
   id: string;
+  user: Types.ObjectId;
+  password: string;
   name: TUserName;
-
   gender: 'male' | 'female' | 'other';
   dateOfBirth?: string;
   contactNo: string;
@@ -35,16 +36,15 @@ export type TStudents = {
   email: string;
   profileImage?: string;
   localGuardian: TLocalGuardian;
-  isActive: 'active' | 'inActive';
+  isDeleted: boolean;
 };
 
-
-// for creating static 
+// for creating static
 
 export interface StudnetModel extends Model<TStudents> {
-  isUserExists(id: string) : Promise<TStudents | null>
+  isUserExists(id: string): Promise<TStudents | null>;
 }
- 
+
 // for crating instance
 // export type StudnetMethods = {
 //   isUserExists(id: string): Promise<TStudents | null>;

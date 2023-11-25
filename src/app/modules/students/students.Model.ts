@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 import { Schema, model } from 'mongoose';
 import validator from 'validator';
+
 import {
   StudnetModel,
   TGuardian,
@@ -7,6 +9,7 @@ import {
   TStudents,
   TUserName,
 } from './students.interface';
+
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -94,101 +97,142 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
     required: [true, 'Address  is Required'],
   },
 });
-const studentsSchema = new Schema<TStudents, StudnetModel>({
-  id: { type: String, required: true, unique: true },
-  name: {
-    type: userNameSchema,
-    required: true,
-  },
-
-  gender: {
-    type: String,
-    trim: true,
-    enum: {
-      values: ['male', 'female', 'other'],
-      message: '{VALUE} is not valid',
+const studentsSchema = new Schema<TStudents, StudnetModel>(
+  {
+    id: { type: String, required: [true, 'ID is Required'], unique: true },
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'User id is Required'],
+      unique: true,
+      ref: 'User',
     },
-    required: true,
-  },
-  dateOfBirth: {
-    trim: true,
-    type: String,
-  },
-  email: {
-    type: String,
-    trim: true,
-    required: true,
-    unique: true,
-    validate: {
-      validator: (value: string) => validator.isEmail(value),
-      message: '{VALUE} is not a valid email type',
+
+
+    name: {
+      type: userNameSchema,
+      required: true,
+    },
+
+    gender: {
+      type: String,
+      trim: true,
+      enum: {
+        values: ['male', 'female', 'other'],
+        message: '{VALUE} is not valid',
+      },
+      required: true,
+    },
+    dateOfBirth: {
+      trim: true,
+      type: String,
+    },
+    email: {
+      type: String,
+      trim: true,
+      required: true,
+      unique: true,
+      validate: {
+        validator: (value: string) => validator.isEmail(value),
+        message: '{VALUE} is not a valid email type',
+      },
+    },
+
+    contactNo: {
+      type: String,
+      trim: true,
+      required: [true, 'ContactNo is Required'],
+    },
+    emergencyContactNo: {
+      type: String,
+      trim: true,
+      required: [true, 'emergencyContactNo is Required'],
+    },
+
+    bloodGroup: {
+      type: String,
+      trim: true,
+      enum: {
+        values: ['A+', 'A-', 'AB+', 'AB-', 'B+', 'B-', 'O+', 'O-'],
+        message:
+          "The blood Group field is can only be one of the following: 'A+', 'A-', 'AB+', 'AB-', 'B+', 'B-', 'O+', 'O-'.",
+      },
+      required: true,
+    },
+    presentAddress: {
+      type: String,
+      trim: true,
+      required: [true, 'present Address is Required'],
+    },
+    permanetAddress: {
+      type: String,
+      trim: true,
+      required: [true, 'permanet Address is Required'],
+    },
+    guardian: {
+      type: guardianSchema,
+      required: true,
+    },
+
+    localGuardian: {
+      type: localGuardianSchema,
+      required: true,
+    },
+    profileImage: { type: String, trim: true },
+   
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
   },
-
-  contactNo: {
-    type: String,
-    trim: true,
-    required: [true, 'ContactNo is Required'],
-  },
-  emergencyContactNo: {
-    type: String,
-    trim: true,
-    required: [true, 'emergencyContactNo is Required'],
-  },
-
-  bloodGroup: {
-    type: String,
-    trim: true,
-    enum: {
-      values: ['A+', 'A-', 'AB+', 'AB-', 'B+', 'B-', 'O+', 'O-'],
-      message:
-        "The blood Group field is can only be one of the following: 'A+', 'A-', 'AB+', 'AB-', 'B+', 'B-', 'O+', 'O-'.",
+  {
+    toJSON: {
+      virtuals: true,
     },
-    required: true,
   },
-  presentAddress: {
-    type: String,
-    trim: true,
-    required: [true, 'present Address is Required'],
-  },
-  permanetAddress: {
-    type: String,
-    trim: true,
-    required: [true, 'permanet Address is Required'],
-  },
-  guardian: {
-    type: guardianSchema,
-    required: true,
-  },
+);
 
-  localGuardian: {
-    type: localGuardianSchema,
-    required: true,
-  },
-  profileImage: { type: String, trim: true },
-  isActive: {
-    type: String,
-    trim: true,
-    enum: ['active', 'inActive'],
-    default: 'active',
-  },
+// virtual
+
+studentsSchema.virtual('fullName').get(function () {
+  return `${this.name.firstName} ${this.name.middleName}  ${this.name.lastName}`;
 });
 
 
-// creating  a custom static method 
-studentsSchema.statics.isUserExists = async function(id: string){
-  const existingUser = await Students.findOne({id});
-  return existingUser
-}
 
-// creating a custom instance methoad 
+// creating  a custom static method
+studentsSchema.statics.isUserExists = async function (id: string) {
+  const existingUser = await Student.findOne({ id });
+  return existingUser;
+};
 
-// studentsSchema.methods.isUserExists = async function (id: string) {
-//   const existingUser = await Students.findOne({ id });
-//   return existingUser;
-// };
+// query middleware
 
-export const Students = model<TStudents, StudnetModel>(
-  'Students',
+studentsSchema.pre('find', function (next) {
+  // console.log(this);
+
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+studentsSchema.pre('findOne', function (next) {
+  // console.log(this);
+
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+// Aggregate
+studentsSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+
+  next();
+});
+
+// creating a custom instance methoad
+
+
+
+export const Student = model<TStudents, StudnetModel>(
+  'Student',
   studentsSchema,
 );

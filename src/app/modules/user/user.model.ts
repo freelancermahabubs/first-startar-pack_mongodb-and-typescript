@@ -8,6 +8,7 @@ const userSchema = new Schema<TUser>(
     id: {
       type: String,
       required: true,
+      unique: true,
     },
     password: {
       type: String,
@@ -36,10 +37,7 @@ const userSchema = new Schema<TUser>(
   },
 );
 
-
 userSchema.pre('save', async function (next) {
-
-
   const user = this;
   user.password = await bcrypt.hash(
     user.password,
@@ -48,7 +46,7 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// set ' ' after saving passwrodn 
+// set ' ' after saving passwrodn
 userSchema.post('save', function (doc, next) {
   doc.password = ' ';
 

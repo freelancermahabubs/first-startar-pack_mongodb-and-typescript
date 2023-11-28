@@ -10,7 +10,6 @@ import {
   TUserName,
 } from './students.interface';
 
-
 const userNameSchema = new Schema<TUserName>({
   firstName: {
     type: String,
@@ -107,7 +106,6 @@ const studentsSchema = new Schema<TStudents, StudnetModel>(
       ref: 'User',
     },
 
-
     name: {
       type: userNameSchema,
       required: true,
@@ -123,8 +121,7 @@ const studentsSchema = new Schema<TStudents, StudnetModel>(
       required: true,
     },
     dateOfBirth: {
-      trim: true,
-      type: String,
+      type: Date,
     },
     email: {
       type: String,
@@ -178,7 +175,11 @@ const studentsSchema = new Schema<TStudents, StudnetModel>(
       required: true,
     },
     profileImage: { type: String, trim: true },
-   
+    admissionSemester: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicSemester',
+    },
+
     isDeleted: {
       type: Boolean,
       default: false,
@@ -196,8 +197,6 @@ const studentsSchema = new Schema<TStudents, StudnetModel>(
 studentsSchema.virtual('fullName').get(function () {
   return `${this.name.firstName} ${this.name.middleName}  ${this.name.lastName}`;
 });
-
-
 
 // creating  a custom static method
 studentsSchema.statics.isUserExists = async function (id: string) {
@@ -229,8 +228,6 @@ studentsSchema.pre('aggregate', function (next) {
 });
 
 // creating a custom instance methoad
-
-
 
 export const Student = model<TStudents, StudnetModel>(
   'Student',

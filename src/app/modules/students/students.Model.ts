@@ -180,6 +180,11 @@ const studentsSchema = new Schema<TStudents, StudnetModel>(
       ref: 'AcademicSemester',
     },
 
+    academicDepartment: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicDepartment',
+    },
+
     isDeleted: {
       type: Boolean,
       default: false,
@@ -197,12 +202,6 @@ const studentsSchema = new Schema<TStudents, StudnetModel>(
 studentsSchema.virtual('fullName').get(function () {
   return `${this.name.firstName} ${this.name.middleName}  ${this.name.lastName}`;
 });
-
-// creating  a custom static method
-studentsSchema.statics.isUserExists = async function (id: string) {
-  const existingUser = await Student.findOne({ id });
-  return existingUser;
-};
 
 // query middleware
 
@@ -226,6 +225,11 @@ studentsSchema.pre('aggregate', function (next) {
 
   next();
 });
+// creating  a custom static method
+studentsSchema.statics.isUserExists = async function (id: string) {
+  const existingUser = await Student.findOne({ id });
+  return existingUser;
+};
 
 // creating a custom instance methoad
 

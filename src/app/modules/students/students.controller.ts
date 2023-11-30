@@ -1,11 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import catchAsync from '../../utils/catchAsync';
 import { StudentsServices } from './students.srvice';
+import sendResponse from '../../utils/sendResponse';
+import httpStatus from 'http-status';
+import catchAsync from '../../utils/catchAsync';
+// import studentsValidationSchema from './students.validation';
 
 const getAllStudents = catchAsync(async (req, res) => {
   const result = await StudentsServices.getAllStudentsFromDB();
-  res.status(200).json({
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
     success: true,
     message: 'Student are retrived Succesfully!',
     data: result,
@@ -14,16 +17,19 @@ const getAllStudents = catchAsync(async (req, res) => {
 const getSingleStudents = catchAsync(async (req, res) => {
   const { studentId } = req.params;
   const result = await StudentsServices.getSingleStudentsFromDB(studentId);
-  res.status(200).json({
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
     success: true,
     message: 'Student are retrived Succesfully!',
     data: result,
   });
 });
-const deletetudents = catchAsync(async (req, res) => {
+const deletetSudents = catchAsync(async (req, res) => {
   const { studentId } = req.params;
   const result = await StudentsServices.deleteStudentsFromDB(studentId);
-  res.status(200).json({
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
     success: true,
     message: 'Student is deleted Succesfully!',
     data: result,
@@ -32,5 +38,5 @@ const deletetudents = catchAsync(async (req, res) => {
 export const StudentsController = {
   getAllStudents,
   getSingleStudents,
-  deletetudents,
+  deletetSudents,
 };

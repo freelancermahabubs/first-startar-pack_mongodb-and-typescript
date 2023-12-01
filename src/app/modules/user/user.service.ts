@@ -27,15 +27,18 @@ const createStudentIntoDB = async (password: string, payload: TStudents) => {
     payload.admissionSemester,
   );
 
+
   if (!admissionSemester) {
     throw new AppError(404, 'Academic semester not found');
   }
 
   const session = await mongoose.startSession();
   try {
+    
     session.startTransaction();
     //set  generated id
     userData.id = await generateStudentId(admissionSemester);
+
 
     //   crate a user (transaciton -1)
     const newUser = await User.create([userData], { session });
@@ -59,6 +62,7 @@ const createStudentIntoDB = async (password: string, payload: TStudents) => {
     await session.endSession();
     return newStudent;
   } catch (error) {
+  
     await session.abortTransaction();
     await session.endSession();
     throw new Error('Failed to create student');

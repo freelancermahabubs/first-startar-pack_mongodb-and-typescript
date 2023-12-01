@@ -9,6 +9,8 @@ import {
   TStudents,
   TUserName,
 } from './students.interface';
+import AppError from '../../errors/AppError';
+import httpStatus from 'http-status';
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -231,6 +233,14 @@ studentsSchema.statics.isUserExists = async function (id: string) {
   return existingUser;
 };
 
+studentsSchema.pre('findOneAndUpdate', async function (next) {
+  const query = this.getQuery();
+  const isStudentExixt = await Student.findOne(query);
+  if (!isStudentExixt) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This Student does not exist!');
+  }
+  next();
+});
 // creating a custom instance methoad
 
 export const Student = model<TStudents, StudnetModel>(

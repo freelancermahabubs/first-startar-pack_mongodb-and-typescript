@@ -17,12 +17,12 @@ app.use(cors());
 
 app.use('/api/v1', router);
 
-const test = (req: Request, res: Response) => {
+const test = async (req: Request, res: Response) => {
   res.send('Hello World!');
 };
 app.get('/', test);
 
 app.use(globalErrorHandler);
 
-app.use(notFound)
+app.use(notFound);
 export default app;

@@ -3,10 +3,10 @@ import { TErrorSources, TGenericErrorResponse } from '../interface/error';
 
 
 const handleZoderror = (error: ZodError): TGenericErrorResponse => {
-  const errorSources: TErrorSources = error.issues.map((issue: ZodIssue) => {
+  const errorSources: TErrorSources = error?.issues?.map((issue: ZodIssue) => {
     return {
       path: issue?.path[issue?.path?.length - 1],
-      message: issue.message,
+      message: issue?.message,
     };
   });
   const statusCode = 400;

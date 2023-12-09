@@ -24,7 +24,7 @@ const getAllFacultiesFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getSingleFacultyFromDB = async (id: string) => {
-  const result = await Faculty.findOne({ id }).populate('academicDepartment');
+  const result = await Faculty.findById({ id }).populate('academicDepartment');
 
   return result;
 };
@@ -42,7 +42,7 @@ const updateFacultyIntoDB = async (id: string, payload: Partial<TFaculty>) => {
     }
   }
 
-  const result = await Faculty.findOneAndUpdate({ id }, modifiedUpdatedData, {
+  const result = await Faculty.findByIdAndUpdate({ id }, modifiedUpdatedData, {
     new: true,
     runValidators: true,
   });
@@ -79,10 +79,10 @@ const deleteStudentFromDB = async (id: string) => {
     await session.endSession();
 
     return deletedStudent;
-  } catch (err: any) {
+  } catch (error: any) {
     await session.abortTransaction();
     await session.endSession();
-    throw new Error(err);
+    throw new Error(error);
   }
 };
 

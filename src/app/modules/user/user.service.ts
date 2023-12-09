@@ -65,10 +65,10 @@ const createStudentIntoDB = async (password: string, payload: TStudents) => {
     await session.endSession();
 
     return newStudent;
-  } catch (err: any) {
+  } catch (error: any) {
     await session.abortTransaction();
     await session.endSession();
-    throw new Error(err);
+    throw new Error(error);
   }
 };
 
@@ -121,10 +121,10 @@ const createFacultyIntoDB = async (password: string, payload: TFaculty) => {
     await session.endSession();
 
     return newFaculty;
-  } catch (err: any) {
+  } catch (error: any) {
     await session.abortTransaction();
     await session.endSession();
-    throw new Error(err);
+    throw new Error(error);
   }
 };
 
@@ -167,10 +167,10 @@ const createAdminIntoDB = async (password: string, payload: TFaculty) => {
     await session.endSession();
 
     return newAdmin;
-  } catch (err: any) {
+  } catch (error: any) {
     await session.abortTransaction();
     await session.endSession();
-    throw new Error(err);
+    throw new Error(error);
   }
 };
 

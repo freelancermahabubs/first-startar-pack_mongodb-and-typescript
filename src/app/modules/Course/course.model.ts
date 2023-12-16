@@ -57,4 +57,4 @@ const coruseFacultySechema = new Schema<TCourseFaculty>({
     },
   ],
 });
-export const CourseFaculty = model<TCourseFaculty>('Faculty', coruseFacultySechema);
+export const CourseFaculty = model<TCourseFaculty>('CourseFaculty', coruseFacultySechema);

@@ -87,7 +87,7 @@ export const updateStudentValidationSchema = z.object({
       email: z.string().email().optional(),
       contactNo: z.string().optional(),
       emergencyContactNo: z.string().optional(),
-      bloogGroup: z
+      bloodGroup: z
         .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
         .optional(),
       presentAddress: z.string().optional(),
@@ -103,5 +103,5 @@ export const updateStudentValidationSchema = z.object({
 
 export const studentsValidations = {
   createStudentsValidationSchema,
- updateStudentValidationSchema
+  updateStudentValidationSchema,
 };

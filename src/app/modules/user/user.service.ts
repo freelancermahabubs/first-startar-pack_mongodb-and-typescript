@@ -18,8 +18,13 @@ import {
   generateStudentId,
 } from './user.utils';
 import { Student } from '../students/students.Model';
+import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 
-const createStudentIntoDB = async (password: string, payload: TStudents) => {
+const createStudentIntoDB = async (
+  file: any,
+  password: string,
+  payload: TStudents,
+) => {
   // create a user object
   const userData: Partial<TUser> = {};
 
@@ -46,7 +51,11 @@ const createStudentIntoDB = async (password: string, payload: TStudents) => {
     session.startTransaction();
     //set  generated id
     userData.id = await generateStudentId(academicDepartment);
-
+    
+    const imageName = `${userData.id}${payload?.name?.firstName}`;
+    const path = file?.path;
+    //send image to cloudinary
+    const { secure_url } = await sendImageToCloudinary(imageName, path);
     // create a user (transaction-1)
     const newUser = await User.create([userData], { session }); // array
 
@@ -57,6 +66,7 @@ const createStudentIntoDB = async (password: string, payload: TStudents) => {
     // set id , _id as user
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id; //reference _id
+    payload.profileImage = secure_url;
 
     // create a student (transaction-2)
 
@@ -200,15 +210,16 @@ const getMe = async (userId: string, role: string) => {
   return result;
 };
 
-// const changeStatus = async (id: string, payload: { status: string }) => {
-//   const result = await User.findByIdAndUpdate(id, payload, {
-//     new: true,
-//   });
-//   return result;
-// };
+const changeStatus = async (id: string, payload: { status: string }) => {
+  const result = await User.findByIdAndUpdate(id, payload, {
+    new: true,
+  });
+  return result;
+};
 export const UserServices = {
   createStudentIntoDB,
   createFacultyIntoDB,
   createAdminIntoDB,
-  getMe
+  getMe,
+  changeStatus,
 };
